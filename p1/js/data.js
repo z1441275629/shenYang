@@ -1,4 +1,4 @@
-const pattern = [
+const patterns = [
 	{
 		name: '图案1',
 		data: [
