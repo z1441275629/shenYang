@@ -91,13 +91,13 @@ function fillPatternToPanel(pattern, position) {
 function randomFillPanel() {
   for (let i = 0; i < rowCount; i++) {
     for (let j = 0; j < columnCount; j++) {
-      console.log(
-        {
-          data: patterns[~~(Math.random() * patterns.length)].data,
-          color: "#" + Math.random().toString(16).slice(-6),
-        },
-        { rowIndex: i, columnIndex: j }
-      );
+      // console.log(
+      //   {
+      //     data: patterns[~~(Math.random() * patterns.length)].data,
+      //     color: "#" + Math.random().toString(16).slice(-6),
+      //   },
+      //   { rowIndex: i, columnIndex: j }
+      // );
       fillPatternToPanel(
         {
           data: patterns[~~(Math.random() * patterns.length)].data,
