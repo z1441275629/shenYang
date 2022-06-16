@@ -4,14 +4,29 @@
   box-sizing: border-box;
 }
 
-table.pattern-preview {
+.patterns .pattern-table {
   margin: 10px;
   border: 1px solid #ccc;
   border-collapse: collapse;
 }
 
-.pattern-preview td {
+.pattern-table td {
   width: 10px;
   height: 10px;
+}
+
+table.panel-table {
+  border: 1px solid #ccc;
+  margin: 10px;
+}
+
+table.panel-table > tbody > tr > td {
+  /* width: 110px;
+  height: 130px; */
   /* border: 1px solid #ccc; */
+}
+
+table.panel-table > tbody > tr > td .pattern-table {
+  border: none;
+  border-collapse: collapse;
 }
