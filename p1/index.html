@@ -8,14 +8,40 @@
   <link rel="stylesheet" href="./css/index.css" />
 </head>
 <body>
-  <ul class="patterns">
-    <!-- <li class="pattern-item">
-      <p class="name"></p>
-      <table class="pattern-preview">
-        <tbody></tbody>
-      </table>
-    </li> -->
-  </ul>
+  <div class="all-patterns">
+    <h3>图案挑选区</h3>
+    <ul class="patterns">
+      <!-- <li class="pattern-item">
+        <p class="name"></p>
+        <table class="pattern-preview">
+          <tbody></tbody>
+        </table>
+      </li> -->
+    </ul>
+    <div class="buttons">
+      <button class="confirmPick">挑选完成</button>
+      <button class="clearPick">重置</button>
+    </div>
+  </div>
+
+  <div class="config-patterns">
+    <h3>挑选图案配置区</h3>
+    <ul class="picked-patterns">
+      <li class="picked-pattern-item">
+        <p class="name"></p>
+        <table class="pattern-preview">
+          <tbody></tbody>
+        </table>
+        <ul class="colors">
+          <li class="color-item"><input type="color" /><button class="delete-color">删除</button></li>
+        </ul>
+        <button class="add-color">添加颜色</button>
+      </li>
+    </ul>
+    <div class="buttons">
+      <button class="confirmPick">生成图案</button>
+    </div>
+  </div>
 
   <div class="panel">
     <table class="panel-table">

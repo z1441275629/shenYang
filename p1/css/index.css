@@ -4,6 +4,48 @@
   box-sizing: border-box;
 }
 
+ul, li {
+  list-style: none;
+}
+
+ol{
+  padding-left: 20px;
+}
+
+ol li {
+  list-style-type: decimal;
+  list-style-position: inside;
+}
+
+.patterns {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.patterns .pattern-item {
+  border: 2px solid #ccc;
+  margin: 10px;
+  cursor: pointer;
+}
+
+.pattern-item .name {
+  padding: 10px 10px 0;
+}
+
+.patterns .pattern-item.active {
+  border-color: rgb(0, 0, 200);
+}
+
+.all-patterns .buttons {
+  text-align: center;
+}
+
+.all-patterns .buttons button {
+  font-size: 20px;
+  padding: 6px 10px;
+}
+
 .patterns .pattern-table {
   margin: 10px;
   border: 1px solid #ccc;
@@ -15,6 +57,33 @@
   height: 10px;
 }
 
+/* 配置区 */
+.picked-patterns {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.picked-patterns .picked-pattern-item {
+  border: 1px solid #ccc;
+  margin: 10px;
+  padding: 10px;
+}
+
+.picked-patterns .picked-pattern-item .colors .color-item {
+  margin-bottom: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.picked-patterns .picked-pattern-item .colors .add-color {
+  display: block;
+  width: 100%;
+  margin: 10px auto 0;
+}
+
+
+/* 画布 */
 table.panel-table {
   border: 1px solid #ccc;
   margin: 10px;

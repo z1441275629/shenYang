@@ -47,6 +47,105 @@ function generatePreviewPattern(color = "#000") {
 generatePreviewPattern();
 
 /**
+ * 绑定点击图案事件
+ */
+ function bindPickEvent() {
+  [...getDom('.patterns .pattern-item')].forEach((item) => {
+    item.onclick = function () {
+      this.classList.toggle('active');
+    }
+  });
+}
+
+bindPickEvent();
+
+/**
+ * 选中的图案
+ */
+let pickedPatterns = [];
+
+/**
+ * 确定挑选图案
+ */
+function confirmPick() {
+  pickedPatterns = [];
+  [...getDom('.patterns .pattern-item')].forEach((item, index) => {
+    if (item.classList.contains('active')) {
+      pickedPatterns.push(patterns[index]);
+    }
+  });
+  console.log(pickedPatterns, 'pickedPatterns');
+  
+  renderPickedPatterns();
+}
+
+getDom('.confirmPick')[0].onclick = confirmPick;
+
+/**
+ * 重置选中的数据
+ */
+function resetPick() {
+  pickedPatterns = [];
+  [...getDom('.patterns .pattern-item')].forEach((item, index) => {
+    item.classList.remove('active');
+  });
+}
+
+getDom('.clearPick')[0].onclick = resetPick;
+
+/**
+ * 渲染选中的图案
+ */
+function renderPickedPatterns() {
+  let domStr = '';
+  for (let i = 0, len = pickedPatterns.length; i < len; i++) {
+    const item = pickedPatterns[i];
+    domStr += `
+      <li class="picked-pattern-item">
+        <p class="name">${item.name}</p>
+        ${getPatternTable(item.data, "#000")}
+        <ol class="colors">
+          <li class="color-item">
+            <input type="color" value="#000000" />
+            <button class="delete-color">删除</button>
+          </li>
+        </ol>
+        <button class="add-color">添加颜色</button>
+      </li>
+    `;
+  }
+  getDom('.picked-patterns')[0].innerHTML = domStr;
+
+  bindDeleteColor();
+  bindAddColor();
+}
+
+/**
+ * 删除颜色
+ */
+function bindDeleteColor() {
+  [...getDom('.delete-color')].forEach((item) => {
+    item.onclick = () => {
+      item.parentElement.remove();
+    }
+  });
+}
+
+/**
+ * 添加颜色
+ */
+ function bindAddColor() {
+  [...getDom('.add-color')].forEach((item) => {
+    item.onclick = () => {
+      item.parentElement.getElementsByClassName('colors')[0].innerHTML += `<li class="color-item">
+        <input type="color" value="#000000" />
+        <button class="delete-color">删除</button>
+      </li>`;
+    }
+  });
+}
+
+/**
  * 生成空画板
  * @param {number} row 行数
  * @param {number} column 列数
