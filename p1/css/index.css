@@ -82,11 +82,14 @@ ol li {
   margin: 10px auto 0;
 }
 
-
 /* 画布 */
-table.panel-table {
-  border: 1px solid #ccc;
+.panel .panel-table {
+  /* border: 1px solid #ccc; */
   margin: 10px;
+}
+
+.panel .panel-table.preview {
+  border: 1px solid #ccc;
 }
 
 table.panel-table > tbody > tr > td {

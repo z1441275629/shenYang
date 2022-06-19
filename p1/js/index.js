@@ -49,7 +49,7 @@ generatePreviewPattern();
 /**
  * 绑定点击图案事件
  */
- function bindPickEvent() {
+function bindPickEvent() {
   [...getDom('.patterns .pattern-item')].forEach((item) => {
     item.onclick = function () {
       this.classList.toggle('active');
@@ -75,7 +75,7 @@ function confirmPick() {
     }
   });
   console.log(pickedPatterns, 'pickedPatterns');
-  
+
   renderPickedPatterns();
 }
 
@@ -126,6 +126,7 @@ function renderPickedPatterns() {
 function bindDeleteColor() {
   [...getDom('.delete-color')].forEach((item) => {
     item.onclick = () => {
+      console.log('delete')
       item.parentElement.remove();
     }
   });
@@ -134,13 +135,15 @@ function bindDeleteColor() {
 /**
  * 添加颜色
  */
- function bindAddColor() {
+function bindAddColor() {
   [...getDom('.add-color')].forEach((item) => {
     item.onclick = () => {
       item.parentElement.getElementsByClassName('colors')[0].innerHTML += `<li class="color-item">
         <input type="color" value="#000000" />
         <button class="delete-color">删除</button>
       </li>`;
+
+      bindDeleteColor();
     }
   });
 }
@@ -185,6 +188,65 @@ function fillPatternToPanel(pattern, position) {
 }
 
 /**
+ * 根据选择的图案和颜色生产画布
+ */
+function generateRicePattern() {
+  // 收集所有选择的图案和颜色
+  const arr = [];
+  for (let i = 0, len = pickedPatterns.length; i < len; i++) {
+    const colors = getDom(`.picked-pattern-item:nth-of-type(${i + 1}) .color-item`);
+    for (let colorIndex = 0, colorCount = colors.length; colorIndex < colorCount; colorIndex++) {
+      arr.push({
+        ...pickedPatterns[i],
+        color: colors[colorIndex].getElementsByTagName('input')[0].value,
+      })
+    }
+  }
+  console.log(arr);
+
+  const pickedCount = arr.length;
+  const totalCount = rowCount * columnCount;
+  if (pickedCount > totalCount) {
+    arr.length = totalCount;
+  }
+  if (pickedCount < totalCount) {
+    console.log(pickedCount, totalCount);
+    const nullPattern = patterns[patterns.length - 1]; // at(-1)
+    arr.length = totalCount;
+    arr.fill({ ...nullPattern, color: '#000000' }, pickedCount, totalCount);
+    console.log(arr);
+  }
+  // 渲染到画布上
+  for (let i = 0; i < rowCount; i++) {
+    for (let j = 0; j < columnCount; j++) {
+      const randomIndex = ~~(Math.random() * arr.length);
+      const [{ data, color }] = arr.splice(randomIndex, 1);
+      fillPatternToPanel(
+        {
+          data,
+          color,
+        },
+        { rowIndex: i, columnIndex: j }
+      );
+    }
+  }
+}
+
+getDom('.generateRicePattern')[0].onclick = generateRicePattern;
+
+function downloadImg() {
+  const panelDom = getDom('.panel-table')[0];
+  panelDom.classList.remove('preview');
+  html2canvas(panelDom).then(canvas => {
+    const url = saveAsPNG(canvas);
+    downLoad(url, new Date().toLocaleTimeString() + '.png');
+    panelDom.classList.add('preview');
+  });
+}
+
+getDom('.download')[0].onclick = downloadImg;
+
+/**
  * 用随机图案和随机颜色填充画布
  */
 function randomFillPanel() {
@@ -208,4 +270,4 @@ function randomFillPanel() {
   }
 }
 
-randomFillPanel();
+// randomFillPanel();
