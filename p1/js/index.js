@@ -166,15 +166,15 @@ function generatePanel(row, column) {
   getDom(".panel-table tbody")[0].innerHTML = domStr;
 }
 
-/**
- * 行数
- */
-const rowCount = 2;
-/**
- * 列数
- */
-const columnCount = 5;
-generatePanel(rowCount, columnCount);
+// /**
+//  * 行数
+//  */
+// const rowCount = 2;
+// /**
+//  * 列数
+//  */
+// const columnCount = 5;
+// generatePanel(rowCount, columnCount);
 
 /**
  * 填充单个图案
@@ -191,6 +191,12 @@ function fillPatternToPanel(pattern, position) {
  * 根据选择的图案和颜色生产画布
  */
 function generateRicePattern() {
+  const rowCount = +getDom('.width-count')[0].value || 2;
+  const columnCount = +getDom('.height-count')[0].value || 5;
+
+  // 生成空画板
+  generatePanel(rowCount, columnCount);
+
   // 收集所有选择的图案和颜色
   const arr = [];
   for (let i = 0, len = pickedPatterns.length; i < len; i++) {
@@ -202,7 +208,6 @@ function generateRicePattern() {
       })
     }
   }
-  console.log(arr);
 
   const pickedCount = arr.length;
   const totalCount = rowCount * columnCount;
@@ -210,11 +215,9 @@ function generateRicePattern() {
     arr.length = totalCount;
   }
   if (pickedCount < totalCount) {
-    console.log(pickedCount, totalCount);
     const nullPattern = patterns[patterns.length - 1]; // at(-1)
     arr.length = totalCount;
     arr.fill({ ...nullPattern, color: '#000000' }, pickedCount, totalCount);
-    console.log(arr);
   }
   // 渲染到画布上
   for (let i = 0; i < rowCount; i++) {
