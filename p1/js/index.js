@@ -35,7 +35,7 @@ function generatePreviewPattern(color = "#000") {
     let tableStr = getPatternTable(item.data, color);
     domStr += `
     <li class="pattern-item">
-      <p class="name">${item.name}</p>
+      <p class="name">${item.name}——${item.count}</p>
       ${tableStr}
     </li>
     `;
@@ -102,7 +102,7 @@ function renderPickedPatterns() {
     const item = pickedPatterns[i];
     domStr += `
       <li class="picked-pattern-item">
-        <p class="name">${item.name}</p>
+        <p class="name">${item.name}——${item.count}</p>
         ${getPatternTable(item.data, "#000")}
         <ol class="colors">
           <li class="color-item">

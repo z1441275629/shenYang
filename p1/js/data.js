@@ -380,7 +380,7 @@ const patterns = [
 		]
 	},
 	{
-		name: '图案21——空白',
+		name: '图案21',
 		data: [
 			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], // 1
 			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], // 2
@@ -398,3 +398,10 @@ const patterns = [
 		]
 	},
 ];
+
+// 统计每个图案中的色块数量
+patterns.forEach(item => {
+	item.count = item.data.reduce((pre, cur) => {
+		return pre + cur.filter(dot => dot).length;
+	}, 0);
+});
