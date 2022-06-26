@@ -38,3 +38,33 @@ function saveAsPNG(canvas) {
 function saveAsJPG(canvas) {
   return canvas.toDataURL("image/jpeg");
 }
+
+/**
+ * 获取元素距离顶部的距离
+ * @param {HTMLElement} element 
+ * @returns 
+ */
+function getPageTop(element) {   
+  var realTop = element.offsetTop;
+  var parent = element.offsetParent;
+  while (parent !== null) {
+    realTop += parent.offsetTop;
+    parent = parent.offsetParent;
+  }
+  return realTop;
+}
+
+/**
+ * 获取元素距离左侧的距离
+ * @param {HTMLElement} element 
+ * @returns 
+ */
+ function getPageLeft(element) {   
+  var realLeft = element.offsetLeft;
+  var parent = element.offsetParent;
+  while (parent !== null) {
+    realLeft += parent.offsetLeft;
+    parent = parent.offsetParent;
+  }
+  return realLeft;
+}

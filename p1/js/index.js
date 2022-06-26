@@ -3,15 +3,17 @@ var color1Dom = getId("color1");
 /**
  * 生成图案表格的DOM字符串
  * @param {Array} data
- * @param {string} color
+ * @param {{color?: string; size?: number;}} options
  * @return {string}
  */
-function getPatternTable(data, color = "#000") {
+function getPatternTable(data, options = {}) {
+  const color = options.color || "#000";
+  const size = options.size || 10;
   let tableContent = "";
   data.forEach((row) => {
     let rowContent = "<tr>";
     row.forEach((column) => {
-      rowContent += `<td style="background: ${column === 1 ? color : 'transparent'}"></td>`;
+      rowContent += `<td style="background: ${column === 1 ? color : 'transparent'}; width: ${size}px; height: ${size}px"></td>`;
     });
     tableContent += rowContent + "</tr>";
   });
@@ -32,7 +34,7 @@ function getPatternTable(data, color = "#000") {
 function generatePreviewPattern(color = "#000") {
   let domStr = "";
   patterns.forEach((item) => {
-    let tableStr = getPatternTable(item.data, color);
+    let tableStr = getPatternTable(item.data, {color});
     domStr += `
     <li class="pattern-item">
       <p class="name">${item.name}</p>
@@ -103,7 +105,7 @@ function renderPickedPatterns() {
     domStr += `
       <li class="picked-pattern-item">
         <p class="name">${item.name}</p>
-        ${getPatternTable(item.data, "#000")}
+        ${getPatternTable(item.data, {color: "#000"})}
         <ol class="colors">
           <li class="color-item">
             <input type="color" value="#000000" />
@@ -180,11 +182,12 @@ function generatePanel(row, column) {
  * 填充单个图案
  * @param {{data: Array; color: string;}} pattern
  * @param {{rowIndex: number; columnIndex: number;}} position
+ * @param {{size: number;}} options
  */
-function fillPatternToPanel(pattern, position) {
+function fillPatternToPanel(pattern, position, options) {
   const { rowIndex, columnIndex } = position;
   const td = getDom(`.panel-table > tbody > tr:nth-of-type(${rowIndex + 1}) > td:nth-of-type(${columnIndex + 1})`)[0];
-  td.innerHTML = getPatternTable(pattern.data, pattern.color);
+  td.innerHTML = getPatternTable(pattern.data, {color: pattern.color, size: options.size});
 }
 
 /**
@@ -193,6 +196,7 @@ function fillPatternToPanel(pattern, position) {
 function generateRicePattern() {
   const rowCount = +getDom('.width-count')[0].value || 2;
   const columnCount = +getDom('.height-count')[0].value || 5;
+  const squareWidth = +getDom('.square-width')[0].value || 10;
 
   // 生成空画板
   generatePanel(rowCount, columnCount);
@@ -229,7 +233,8 @@ function generateRicePattern() {
           data,
           color,
         },
-        { rowIndex: i, columnIndex: j }
+        { rowIndex: i, columnIndex: j },
+        { size: squareWidth }
       );
     }
   }
@@ -248,6 +253,105 @@ function downloadImg() {
 }
 
 getDom('.download')[0].onclick = downloadImg;
+
+/**
+ * 拖拽图案设计
+ * 1. 鼠标按下时，判断当前图案的横纵坐标位置，
+ *    复制一个新的图案，通过定位跟随鼠标移动；
+ * 2. 鼠标移动，复制的图案跟随鼠标
+ * 3. 鼠标松开，判断松开鼠标的位置，将最终的位置与鼠标按下的位置相应的图案对换
+ *    隐藏复制的图案
+ */
+
+const panel = getDom(".panel-table")[0];
+let originRowIndex = 0;
+let originColumnIndex = 0;
+let clickedPattern = null;
+let cloneDom = null;
+let mouseToLeft = 0;
+let mouseToTop = 0;
+
+const widthCount = 11; // 每个图案宽的小正方向的数量
+const heightCount = 13; // 每个图案高的小正方向的数量
+
+/**
+ * 鼠标按下
+ * @param {MouseEvent} e 
+ */
+panel.onmousedown = function (e) {
+  console.log(e);
+  const { pageX, pageY } = e;
+  const panelLeft = panel.offsetLeft;
+  const panelTop = getPageTop(panel);
+
+  const squareWidth = +getDom('.square-width')[0].value || 10;
+
+  originColumnIndex = parseInt((pageX - panelLeft) / (widthCount * squareWidth));
+  originRowIndex = parseInt((pageY - panelTop) / (heightCount * squareWidth));
+
+  // console.log(originRowIndex, originColumnIndex);
+  clickedPattern = getDom(`.panel-table > tbody > tr:nth-of-type(${originRowIndex + 1}) > td:nth-of-type(${originColumnIndex + 1}) .pattern-table`)[0];
+  cloneDom = clickedPattern.cloneNode(true);
+  let pageLeft = getPageLeft(clickedPattern);
+  let pageTop = getPageTop(clickedPattern);
+  cloneDom.style.cssText = `
+    position: absolute;
+    left: ${pageLeft - panel.offsetLeft}px;
+    top: ${pageTop}px;
+    opacity: 0.8;
+  `;
+  cloneDom.classList.add('help-pattern');
+  // console.log(cloneDom);
+  document.body.appendChild(cloneDom);
+
+  mouseToLeft = pageX - pageLeft;
+  mouseToTop = pageY - pageTop;
+}
+
+document.onmousemove = function (e) {
+  if (!cloneDom) return;
+  const { pageX, pageY } = e;
+  console.log(pageX - mouseToLeft, pageY - mouseToTop);
+  console.log(mouseToLeft, mouseToTop);
+  // cloneDom.style.cssText = `
+  //   left: ${pageX - mouseToLeft}px;
+  //   top: ${pageY - mouseToTop}px;
+  // `;
+  cloneDom.style.left = `${pageX - mouseToLeft}px`;
+  cloneDom.style.top = `${pageY - mouseToTop}px`;
+}
+
+document.onmouseup = function (e) {
+  cloneDom && cloneDom.remove();
+  cloneDom = null;
+  const { pageX, pageY } = e;
+  const { offsetWidth, offsetHeight } = panel;
+  const pageLeft = getPageLeft(panel);
+  const pageTop = getPageTop(panel);
+  // 再画板区域松开鼠标，交换位置
+  if (pageX > pageLeft && pageX < pageLeft + offsetWidth && pageY > pageTop && pageY < pageTop + offsetHeight) {
+    const squareWidth = +getDom('.square-width')[0].value || 10;
+    const y = parseInt((pageX - pageLeft) / (widthCount * squareWidth));
+    const x = parseInt((pageY - pageTop) / (heightCount * squareWidth));
+    exchange(
+      clickedPattern,
+      getDom(`.panel-table > tbody > tr:nth-of-type(${x + 1}) > td:nth-of-type(${y + 1}) .pattern-table`)[0]
+    );
+  }
+}
+
+/**
+ * 交换两个元素
+ * @param {HTMLElement} dom1 
+ * @param {HTMLElement} dom2 
+ */
+function exchange(dom1, dom2) {
+  const dom1Parent = dom1.parentNode;
+  const dom2Parent = dom2.parentNode;
+  var temp = dom2.cloneNode(true);
+  dom1Parent.replaceChild(temp, dom1);
+  dom2Parent.replaceChild(dom1, dom2);
+}
 
 /**
  * 用随机图案和随机颜色填充画布

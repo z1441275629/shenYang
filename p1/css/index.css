@@ -92,6 +92,10 @@ ol li {
   border: 1px solid #ccc;
 }
 
+.panel .panel-table.preview .pattern-table {
+  border: 1px solid #ccc;
+}
+
 table.panel-table > tbody > tr > td {
   /* width: 110px;
   height: 130px; */
@@ -101,4 +105,8 @@ table.panel-table > tbody > tr > td {
 table.panel-table > tbody > tr > td .pattern-table {
   border: none;
   border-collapse: collapse;
+}
+
+.help-pattern td {
+  border: none;
 }
