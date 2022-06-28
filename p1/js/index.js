@@ -245,11 +245,60 @@ getDom('.generateRicePattern')[0].onclick = generateRicePattern;
 function downloadImg() {
   const panelDom = getDom('.panel-table')[0];
   panelDom.classList.remove('preview');
-  html2canvas(panelDom).then(canvas => {
+  // html2canvas(panelDom).then(canvas => {
+  //   document.body.appendChild(canvas);
+  //   const url = saveAsPNG(canvas);
+  //   downLoad(url, new Date().toLocaleTimeString() + '.png');
+  //   panelDom.classList.add('preview');
+  // });
+  
+  const rowCount = +getDom('.width-count')[0].value || 2;
+  const columnCount = +getDom('.height-count')[0].value || 5;
+  const squareWidth = +getDom('.square-width')[0].value || 10;
+
+  var copyDom = panelDom.cloneNode(true);
+  panelDom.style.width = columnCount * 11 * squareWidth + 'px';
+  panelDom.style.height = rowCount * 13 * squareWidth + 'px';
+  var style = `
+    <style>
+      table {
+        border-collapse: collapse;
+        border: none;
+        overflow-x: auto;
+      }
+    </style>
+  `;
+
+  var html = copyDom.outerHTML;
+  var oImg = document.createElement('img');
+  var oSvg = document.createElement('svg');
+  // oSvg.setAttribute('version', 1.1);
+  // oSvg.setAttribute('xmlns', "http://www.w3.org/2000/svg");
+  oSvg.innerHTML = style + html;
+  // oSvg.innerHTML = '<div style="width: 100px;height: 100px;background: red;"></div>';
+  var data = (new XMLSerializer()).serializeToString(oSvg);
+  var svgBlob = new Blob([data], {type: 'image/svg+xml'}); // image/svg+xml;charset=utf-8
+  var url = URL.createObjectURL(svgBlob);
+  downLoad(url, new Date().toLocaleTimeString() + '.svg');
+  return;
+  console.log(url);
+
+  // oImg.src = `data:image/svg+xml;base64,${btoa(oSvg.outerHTML)}`;
+  oImg.src = url;
+
+  document.body.appendChild(oImg);
+  oImg.onload = function () {
+    var canvas = document.createElement('canvas');
+    var ctx = canvas.getContext('2d');
+    ctx.drawImage(oImg, 0, 0);
     const url = saveAsPNG(canvas);
     downLoad(url, new Date().toLocaleTimeString() + '.png');
     panelDom.classList.add('preview');
-  });
+    // oImg.remove();
+  }
+  oImg.onerror = function (err) {
+    console.log(err);
+  }
 }
 
 getDom('.download')[0].onclick = downloadImg;
@@ -311,8 +360,8 @@ panel.onmousedown = function (e) {
 document.onmousemove = function (e) {
   if (!cloneDom) return;
   const { pageX, pageY } = e;
-  console.log(pageX - mouseToLeft, pageY - mouseToTop);
-  console.log(mouseToLeft, mouseToTop);
+  // console.log(pageX - mouseToLeft, pageY - mouseToTop);
+  // console.log(mouseToLeft, mouseToTop);
   // cloneDom.style.cssText = `
   //   left: ${pageX - mouseToLeft}px;
   //   top: ${pageY - mouseToTop}px;

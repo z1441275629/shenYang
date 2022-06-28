@@ -23,6 +23,10 @@ ol li {
   align-items: center;
 }
 
+td {
+  overflow: hidden;
+}
+
 .patterns .pattern-item {
   border: 2px solid #ccc;
   margin: 10px;
@@ -69,6 +73,11 @@ ol li {
   padding: 10px;
 }
 
+.picked-patterns .picked-pattern-item .pattern-table {
+  border: none;
+  border-collapse: collapse;
+}
+
 .picked-patterns .picked-pattern-item .colors .color-item {
   margin-bottom: 5px;
   display: flex;
@@ -86,6 +95,7 @@ ol li {
 .panel .panel-table {
   /* border: 1px solid #ccc; */
   margin: 10px;
+  border-collapse: collapse;
 }
 
 .panel .panel-table.preview {
@@ -107,6 +117,10 @@ table.panel-table > tbody > tr > td .pattern-table {
   border-collapse: collapse;
 }
 
+.help-pattern {
+  border: none;
+  border-collapse: collapse;
+}
 .help-pattern td {
   border: none;
 }
