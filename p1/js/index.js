@@ -242,6 +242,8 @@ function generateRicePattern() {
 
 getDom('.generateRicePattern')[0].onclick = generateRicePattern;
 
+const base64 = str => window.btoa(str.replace(/[\u00A0-\u2666]/g, c => `&#${c.charCodeAt(0)};`));
+
 function downloadImg() {
   const panelDom = getDom('.panel-table')[0];
   panelDom.classList.remove('preview');
@@ -274,17 +276,25 @@ function downloadImg() {
   var oSvg = document.createElement('svg');
   // oSvg.setAttribute('version', 1.1);
   // oSvg.setAttribute('xmlns', "http://www.w3.org/2000/svg");
+  // oSvg.setAttribute('xmlns', "http://www.w3.org/2000/svg");
+  oSvg.setAttribute('xmlns', "http://www.w3.org/1999/xhtml");
+  oSvg.setAttribute('xmlns:xlink', "http://www.w3.org/1999/xlink");
   oSvg.innerHTML = style + html;
-  // oSvg.innerHTML = '<div style="width: 100px;height: 100px;background: red;"></div>';
+  document.body.appendChild(oSvg);
+  // return;
   var data = (new XMLSerializer()).serializeToString(oSvg);
-  var svgBlob = new Blob([data], {type: 'image/svg+xml'}); // image/svg+xml;charset=utf-8
-  var url = URL.createObjectURL(svgBlob);
-  downLoad(url, new Date().toLocaleTimeString() + '.svg');
-  return;
-  console.log(url);
+  // var svgBlob = new Blob([data], {type: 'image/svg+xml;charset=utf-8'}); // image/svg+xml;charset=utf-8
+  // var url = URL.createObjectURL(svgBlob);
+  // downLoad(url, new Date().toLocaleTimeString() + '.svg');
+  // console.log(url);
+  // return;
+
+  // const src = `data:image/svg+xml;base64,${btoa(data)}`;
+  // const src = `data:image/svg+xml;base64,${base64(data)}`;
+  const src = `data:image/svg+xml,${data}`;
+  console.log(src);
 
   // oImg.src = `data:image/svg+xml;base64,${btoa(oSvg.outerHTML)}`;
-  oImg.src = url;
 
   document.body.appendChild(oImg);
   oImg.onload = function () {
@@ -299,6 +309,8 @@ function downloadImg() {
   oImg.onerror = function (err) {
     console.log(err);
   }
+  // oImg.src = url;
+  oImg.src = src;
 }
 
 getDom('.download')[0].onclick = downloadImg;
