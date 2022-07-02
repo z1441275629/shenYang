@@ -1,5 +1,16 @@
 var color1Dom = getId("color1");
 
+const memoCalculateColor = (function () {
+  const obj = {};
+  return function (color) {
+    if (obj[color]) {
+      return obj[color];
+    }
+    obj[color] = colorTransform(color);
+    return obj[color];
+  }
+})();
+
 /**
  * 生成图案表格的DOM字符串
  * @param {Array} data
@@ -7,13 +18,15 @@ var color1Dom = getId("color1");
  * @return {string}
  */
 function getPatternTable(data, options = {}) {
-  const color = options.color || "#000";
+  // 颜色用16进制颜色的话，导出svg时报错，所以需要转换成rgb颜色
+  const color = memoCalculateColor(options.color || "#000");
   const size = options.size || 10;
   let tableContent = "";
   data.forEach((row) => {
     let rowContent = "<tr>";
     row.forEach((column) => {
-      rowContent += `<td style="background: ${column === 1 ? color : 'transparent'}; width: ${size}px; height: ${size}px"></td>`;
+      rowContent += `<td style="background: ${column === 1 ? color : 'transparent'}; width: ${size}px; height: ${size}px;"></td>`;
+      // rowContent += `<td style="background: ${column === 1 ? color : 'transparent'};"></td>`;
     });
     tableContent += rowContent + "</tr>";
   });
@@ -24,6 +37,7 @@ function getPatternTable(data, options = {}) {
       </tbody>
     </table>
   `;
+  console.log(tableStr);
   return tableStr;
 }
 
@@ -32,6 +46,7 @@ function getPatternTable(data, options = {}) {
  * @param {String} color
  */
 function generatePreviewPattern(color = "#000") {
+  
   let domStr = "";
   patterns.forEach((item) => {
     let tableStr = getPatternTable(item.data, {color});
@@ -198,6 +213,21 @@ function generateRicePattern() {
   const columnCount = +getDom('.height-count')[0].value || 5;
   const squareWidth = +getDom('.square-width')[0].value || 10;
 
+
+  let styleDom = getDom('#dynamicStyle')[0];
+  if (styleDom) {
+    styleDom.remove();
+  }
+  styleDom = document.createElement('style');
+  styleDom.id = 'dynamicStyle';
+  styleDom.innerHTML = `
+    .panel .panel-table .pattern-table td {
+      width: ${squareWidth}px;
+      height: ${squareWidth}px;
+    }
+  `;
+  document.head.appendChild(styleDom);
+
   // 生成空画板
   generatePanel(rowCount, columnCount);
 
@@ -247,69 +277,79 @@ const base64 = str => window.btoa(str.replace(/[\u00A0-\u2666]/g, c => `&#${c.ch
 function downloadImg() {
   const panelDom = getDom('.panel-table')[0];
   panelDom.classList.remove('preview');
-  // html2canvas(panelDom).then(canvas => {
-  //   document.body.appendChild(canvas);
-  //   const url = saveAsPNG(canvas);
-  //   downLoad(url, new Date().toLocaleTimeString() + '.png');
-  //   panelDom.classList.add('preview');
-  // });
+  // setTimeout(() => {
+  //   html2canvas(panelDom).then(canvas => {
+  //     document.body.appendChild(canvas);
+  //     const url = saveAsPNG(canvas);
+  //     downLoad(url, new Date().toLocaleTimeString() + '.png');
+  //     panelDom.classList.add('preview');
+  //   });
+  // }, 30);
   
   const rowCount = +getDom('.width-count')[0].value || 2;
   const columnCount = +getDom('.height-count')[0].value || 5;
   const squareWidth = +getDom('.square-width')[0].value || 10;
-
+  
+  const scale = devicePixelRatio;
   var copyDom = panelDom.cloneNode(true);
-  panelDom.style.width = columnCount * 11 * squareWidth + 'px';
-  panelDom.style.height = rowCount * 13 * squareWidth + 'px';
+  const width = columnCount * 11 * squareWidth;
+  const height = rowCount * 13 * squareWidth;
+  panelDom.style.width = width + 'px';
+  panelDom.style.height = height + 'px';
   var style = `
     <style>
+      * {
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+      }
       table {
         border-collapse: collapse;
         border: none;
-        overflow-x: auto;
+        border-spacing: 0;
+      }
+      td {
+        border: none;
+      }
+      .panel-table {
+        background: rgb(255, 255, 255);
       }
     </style>
   `;
 
-  var html = copyDom.outerHTML;
+  var html = copyDom.outerHTML; // replace(/%0A/g, '');
+  var svgStr = `<svg xmlns="http://www.w3.org/2000/svg" charset="utf-8" width="${width}px" height="${height}px"><foreignObject width="100%" height="100%"><div xmlns='http://www.w3.org/1999/xhtml' style='font-size:16px;font-family:Helvetica'>${style}${html}</div></foreignObject></svg>`;
+  // var svgStr = `<svg xmlns="http://www.w3.org/2000/svg" charset="utf-8" width="${width}px" height="${height}px"><foreignObject width="100%" height="100%"><div xmlns='http://www.w3.org/1999/xhtml' style='font-size:16px;font-family:Helvetica;transform:scale(${1 / devicePixelRatio})'>${style}${html}</div></foreignObject></svg>`;
+  // var svgStr = `<svg xmlns="http://www.w3.org/2000/svg" charset="utf-8" width="${width * devicePixelRatio}px" height="${height * devicePixelRatio}px"><foreignObject width="100%" height="100%"><div xmlns='http://www.w3.org/1999/xhtml' style='font-size:16px;font-family:Helvetica;'>${style}${html}</div></foreignObject></svg>`;
+  // var svgStr = `<svg xmlns="http://www.w3.org/2000/svg" width="${width / devicePixelRatio}px" height="${height / devicePixelRatio}px"><foreignObject width="100%" height="100%"><div xmlns='http://www.w3.org/1999/xhtml' style='font-size:16px;font-family:Helvetica'>${style}${html}</div></foreignObject></svg>`;
   var oImg = document.createElement('img');
-  var oSvg = document.createElement('svg');
-  // oSvg.setAttribute('version', 1.1);
-  // oSvg.setAttribute('xmlns', "http://www.w3.org/2000/svg");
-  // oSvg.setAttribute('xmlns', "http://www.w3.org/2000/svg");
-  oSvg.setAttribute('xmlns', "http://www.w3.org/1999/xhtml");
-  oSvg.setAttribute('xmlns:xlink', "http://www.w3.org/1999/xlink");
-  oSvg.innerHTML = style + html;
-  document.body.appendChild(oSvg);
-  // return;
-  var data = (new XMLSerializer()).serializeToString(oSvg);
-  // var svgBlob = new Blob([data], {type: 'image/svg+xml;charset=utf-8'}); // image/svg+xml;charset=utf-8
-  // var url = URL.createObjectURL(svgBlob);
-  // downLoad(url, new Date().toLocaleTimeString() + '.svg');
-  // console.log(url);
-  // return;
+  const src = `data:image/svg+xml,${svgStr}`;
+  oImg.width = width + 'px';
+  oImg.height = height + 'px';
+  // oImg.src = src;
+  // console.log(src);
 
-  // const src = `data:image/svg+xml;base64,${btoa(data)}`;
-  // const src = `data:image/svg+xml;base64,${base64(data)}`;
-  const src = `data:image/svg+xml,${data}`;
-  console.log(src);
+  // getId("svg").innerHTML = svgStr;
+  // getId("svg").style.transform = `scale(${1 / devicePixelRatio})`;
 
   // oImg.src = `data:image/svg+xml;base64,${btoa(oSvg.outerHTML)}`;
 
   document.body.appendChild(oImg);
+  // return;
   oImg.onload = function () {
     var canvas = document.createElement('canvas');
     var ctx = canvas.getContext('2d');
+    canvas.width = width;
+    canvas.height = height;
     ctx.drawImage(oImg, 0, 0);
     const url = saveAsPNG(canvas);
     downLoad(url, new Date().toLocaleTimeString() + '.png');
     panelDom.classList.add('preview');
-    // oImg.remove();
+    oImg.remove();
   }
   oImg.onerror = function (err) {
     console.log(err);
   }
-  // oImg.src = url;
   oImg.src = src;
 }
 
