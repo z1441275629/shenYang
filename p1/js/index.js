@@ -497,12 +497,31 @@ function getSideColor(excludeColor) {
   return colors[Math.floor(Math.random() * colors.length)].color;
 }
 
+// 二维数组颜色计数
+function countColor(arr) {
+  const statisticObj = {}; // 存放已有的颜色统计
+  let count = 0;
+  arr.forEach((row, rowIndex) => {
+    row.forEach((column, columnIndex) => {
+      if (column) {
+        count++;
+        statisticObj[column] = statisticObj[column] ? statisticObj[column] + 1 : 1;
+      }
+    });
+  });
+  return {
+    count,
+    statisticObj,
+  }
+}
+
 function fillWithRandomColor() {
   // 要求：图案周围的颜色不能与图案颜色相同
   // 1. 获取图案外测一圈的坐标，填充与图案不一样的随机颜色
   // 2. 用随机色填充剩余位置
 
   // 获取配置的颜色
+  colorList.length = 0;
   [...getDom('.fill-color-item')].forEach((item) => {
     const color = colorTransform(item.getElementsByClassName('color')[0].value);
     const rate = item.getElementsByClassName('rate')[0].value / 100;
@@ -566,23 +585,33 @@ function fillWithRandomColor() {
 
   // 3. 根据颜色比例填充剩余的方格
   const totalCount = rowCount * columnCount * 11 * 13;
-  let hasColorCount = 0;
-  const statisticObj = {}; // 存放已有的颜色统计
-  copyArr.forEach((row, rowIndex) => {
-    row.forEach((column, columnIndex) => {
-      if (column) {
-        hasColorCount++;
-        statisticObj[column] = statisticObj[column] ? statisticObj[column]++ : 1;
-      }
-    });
-  });
+  const { statisticObj, count: hasColorCount } = countColor(copyArr);
+
+  const invalidColor = {};
+  let invalidCount = 0;
+  for (let color in statisticObj) {
+    if (!colorList.some(item => item.color === color)) {
+      invalidColor[color] = statisticObj[color];
+      invalidCount += statisticObj[color];
+    }
+  }
+  // console.log(statisticObj);
   const restNullCount = totalCount - hasColorCount;
+  // const restNullCount = totalCount - invalidCount;
   const calculateColorCount = colorList.map(item => {
+    let count = 0;
+    if (statisticObj[item.color]) {
+      count = Math.ceil(item.rate * (totalCount - invalidCount)) - statisticObj[item.color];
+    } else {
+      count = Math.ceil(item.rate * (totalCount - invalidCount));
+    }
     return {
       color: item.color,
-      count: Math.ceil(item.rate * restNullCount), // 先线上取整，多余的后面截取
+      count, // 先线上取整，多余的后面截取
     }
   });
+
+  console.log(restNullCount, calculateColorCount);
 
   const toFillColors = []; // 待填充的所有颜色
   calculateColorCount.forEach(item => {
@@ -615,6 +644,19 @@ function fillWithRandomColor() {
       panelPatters[tableIndex].getElementsByTagName('tr')[trIndex].getElementsByTagName('td')[tdIndex].style.background = column;
     });
   });
+
+  const { statisticObj: realStatObj } = countColor(copyArr);
+  let realDomStr = '';
+  for (let color in realStatObj) {
+    realDomStr += `<span class="" style="background-color: ${color}">${color}</span>: ${realStatObj[color]}个&nbsp;&nbsp;比例：${(realStatObj[color] / totalCount * 100).toFixed(1)}%`;
+  }
+  getDom('.count-of-real')[0].innerHTML = realDomStr;
+
+  let configDomStr = '';
+  for (let item of colorList) {
+    configDomStr += `<span style="background-color: ${item.color}">${item.color}</span>: ${Math.floor(item.rate * totalCount)}个&nbsp;&nbsp;比例：${item.rate * 100}%`;
+  }
+  getDom('.count-of-config')[0].innerHTML = configDomStr;
 }
 
 getDom('.fillWithRandomColor')[0].onclick = fillWithRandomColor;
