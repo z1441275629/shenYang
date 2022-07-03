@@ -4,6 +4,10 @@
   box-sizing: border-box;
 }
 
+body {
+  padding: 10px;
+}
+
 ul, li {
   list-style: none;
 }
@@ -98,11 +102,16 @@ ol li {
 }
 
 .panel .panel-table.preview {
-  /* border: 1px solid #ccc; */
+  border: 1px solid #ccc;
 }
 
 .panel .panel-table.preview .pattern-table {
-  /* border: 1px solid #ccc; */
+  border: 1px solid #ccc;
+  cursor: move;
+}
+
+.panel .panel-table.preview .pattern-table:active {
+  cursor: move;
 }
 
 table.panel-table > tbody > tr > td {
@@ -129,4 +138,22 @@ table {
 .pattern-table td {
   width: 10px;
   height: 10px;
+}
+
+.color-config {
+
+}
+.color-config .fill-color-list {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.color-config .fill-color-list .fill-color-item {
+  margin: 0 16px 16px 0;
+  border: 1px solid #ccc;
+  padding: 10px;
+}
+
+.color-config .fill-color-list .fill-color-item .rate {
+  width: 80px;
 }
